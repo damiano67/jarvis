@@ -36,7 +36,7 @@ class JarvisSelfHealingEngine {
         apiKey: localStorage.getItem('gemini_api_key') || '',
         created: new Date().toISOString(),
         educationalChannels: [
-          'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione'
+          'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione', 'test_solver'
         ],
         directTools: []
       };
@@ -58,24 +58,13 @@ class JarvisSelfHealingEngine {
         apiKey: '',
         created: new Date().toISOString(),
         educationalChannels: [
-          'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione'
+          'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione', 'test_solver'
         ],
         directTools: []
       };
       changed = true;
     } else if (profiles['cristian'].pin !== '901090') {
       profiles['cristian'].pin = '901090';
-      changed = true;
-    }
-        schoolYear: '2026/2027',
-        targetNote: 'Studio e supporto didattico',
-        apiKey: '',
-        created: new Date().toISOString(),
-        educationalChannels: [
-          'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione'
-        ],
-        directTools: []
-      };
       changed = true;
     }
 
@@ -114,7 +103,7 @@ class JarvisSelfHealingEngine {
       name: 'Signore (Damiano)',
       classInfo: '3° Anno ITI Informatica',
       educationalChannels: [
-        'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione'
+        'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione', 'test_solver'
       ]
     };
   }
@@ -141,7 +130,7 @@ class JarvisSelfHealingEngine {
       classInfo,
       apiKey: '',
       educationalChannels: [
-        'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione'
+        'hub', 'matematica', 'informatica', 'sistemi', 'tpsit', 'telecomunicazioni', 'italiano', 'storia', 'inglese', 'mappe', 'interrogazione', 'test_solver'
       ],
       created: new Date().toISOString()
     };
