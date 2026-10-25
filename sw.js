@@ -1,5 +1,5 @@
 // J.A.R.V.I.S. Offline-First Service Worker
-const CACHE_NAME = 'jarvis-offline-v9';
+const CACHE_NAME = 'jarvis-offline-v11';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
