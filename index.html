@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>J.A.R.V.I.S. Protocol - Studio & Stark System HUD</title>
+  
+  <!-- Protezione totale privacy: Nessuna indicizzazione sui motori di ricerca -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#00f0ff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="J.A.R.V.I.S.">
+  <meta name="description" content="J.A.R.V.I.S. Protocol - Assistente Didattico, Registro Argo e Laboratorio Dev-C++ per il Signor Damiano">
+  
+  <!-- KaTeX for High-Fidelity Math Rendering -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Tesseract.js for In-Browser OCR -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+
+  <!-- PDF.js for Direct In-Browser PDF Text Extraction -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div id="masterApp">
+
+  <!-- ====================================================================
+       TOP DUAL-TAB NAVIGATION BAR
+       ==================================================================== -->
+  <header id="topDualNavBar">
+    <div class="brand-section">
+      <div class="brand-logo" id="headerMiniReactor"></div>
+      <div class="brand-text">
+        <h1>J.A.R.V.I.S.</h1>
+        <span>STARK DEFENSE & STUDY PROTOCOL V2.0</span>
+      </div>
+    </div>
+
+    <!-- Dual-Tab UX Selector (Sezione 2) -->
+    <div class="dual-tab-buttons">
+      <button id="mobileMenuBtn" class="action-btn mobile-hamburger-btn" onclick="toggleMobileSidebar()" title="Menu Canali">
+        <span>☰</span>
+      </button>
+      <button id="tabBtnStudio" class="tab-btn active desktop-only-tab" onclick="switchMainTab('studio')">
+        <span>🟢 SCHEDA A: STUDIO & CHAT</span>
+      </button>
+      <button id="tabBtnStark" class="tab-btn desktop-only-tab" onclick="switchMainTab('stark')">
+        <span>🟠 SCHEDA B: STARK SYSTEM HUD</span>
+      </button>
+      <button id="newTabBtn" class="action-btn desktop-only-tab" title="Apri Nuova Scheda J.A.R.V.I.S." onclick="openNewJarvisTab()">
+        <span>➕</span>
+      </button>
+    </div>
+
+    <!-- Mobile Central Channel Indicator (Stile Gemini/ChatGPT) -->
+    <button id="mobileChannelPill" class="mobile-channel-pill" onclick="toggleMobileSidebar()" title="Tocca per cambiare canale">
+      <span id="mobileChannelIcon">🌐</span>
+      <span id="mobileChannelName">Hub Centrale</span>
+      <span class="mobile-caret">▾</span>
+    </button>
+
+    <!-- Live Telemetry, Profile & Pause Indicator -->
+    <div class="top-system-status">
+      <div id="pomodoroPill" class="pomodoro-pill" onclick="togglePomodoroTimer()" title="Timer Pomodoro Studio (25m studio / 5m pausa)">
+        <span id="pomodoroIcon">🍅</span>
+        <span id="pomodoroTimerDisplay">25:00</span>
+      </div>
+
+      <div id="pausePill" class="pause-indicator">
+        <span>⏸️ IN PAUSA (Dica "Riprendi")</span>
+      </div>
+
+      <div class="profile-pill" onclick="openProfileModal()">
+        <span>👤</span>
+        <span id="currentProfileName">Signore (Damiano)</span>
+      </div>
+
+      <button id="callModeBtn" class="action-btn" style="border-color: #00ffaa; color: #00ffaa;" onclick="toggleCallMode()">
+        <span>📞 CHIAMATA LIVE</span>
+      </button>
+
+      <button id="ttsToggleBtn" class="action-btn tts-toggle-btn" onclick="toggleVoiceOutput()" aria-pressed="true">
+        <span>🔊 AUDIO ON</span>
+      </button>
+
+      <button class="action-btn" onclick="openSettingsModal()">
+        <span>⚙️ CONFIG</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Backdrop per Drawer Canali Mobile -->
+  <div id="mobileDrawerBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar(false)"></div>
+
+  <!-- ====================================================================
+       SCHEDA A: STUDIO, SCUOLA & CHAT (SEZIONE 2)
+       ==================================================================== -->
+  <main id="viewStudioA">
+    
+    <!-- Left Sidebar: Channels & Subjects (Gemini/ChatGPT Mobile Slide-over Drawer) -->
+    <aside class="studio-sidebar" id="studioSidebar">
+      <!-- Mobile Drawer Close Header (visibile solo su mobile) -->
+      <div class="mobile-drawer-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div class="brand-logo" style="width:24px; height:24px; border-radius:50%; box-shadow:0 0 10px #00f0ff;"></div>
+          <span style="font-weight:700; color:var(--cyan-bright); font-size:15px; letter-spacing:1px;">J.A.R.V.I.S. CANALI</span>
+        </div>
+        <button type="button" class="mobile-drawer-close-btn" onclick="toggleMobileSidebar(false)" title="Chiudi menu">✕</button>
+      </div>
+
+      <!-- Tasto Prominente Nuova Chat Libera (Stile Gemini) -->
+      <button class="new-chat-prominent-btn" onclick="switchChannel('general'); toggleMobileSidebar(false);">
+        <span>💬 + Nuova Chat Libera</span>
+      </button>
+
+      <!-- Switch Modalità (Studio vs Stark HUD) per Mobile -->
+      <div class="mobile-drawer-tabs">
+        <button id="drawerTabStudio" class="tab-btn active" onclick="switchMainTab('studio'); toggleMobileSidebar(false);">🟢 Studio</button>
+        <button id="drawerTabStark" class="tab-btn" onclick="switchMainTab('stark'); toggleMobileSidebar(false);">🟠 Stark HUD</button>
+      </div>
+
+      <div class="profile-card" id="sidebarProfileCard">
+        <div class="profile-card-header">
+          <div class="profile-title">Identità Operativa</div>
+          <button type="button" class="profile-manage-btn" onclick="openProfileModal()" title="Gestione Profili">
+            ⚙️ Profili
+          </button>
+        </div>
+
+        <!-- Pulsanti Diretti Utenti (1 Tap Diretto, 100% Cliccabile su Mobile & PC) -->
+        <div class="profile-buttons-group" id="profileButtonsGroup">
+          <button type="button" class="profile-pill-btn active" id="profBtn_damiano_iti" onclick="selectUserProfile('damiano_iti')">
+            <span class="prof-pill-icon">👤</span>
+            <span class="prof-pill-name">Signore (Damiano)</span>
+            <span class="prof-pill-check" id="profCheck_damiano_iti">✓</span>
+          </button>
+          <button type="button" class="profile-pill-btn" id="profBtn_cristian" onclick="selectUserProfile('cristian')">
+            <span class="prof-pill-icon">👤</span>
+            <span class="prof-pill-name">Cristian</span>
+            <span class="prof-pill-check" id="profCheck_cristian"></span>
+          </button>
+        </div>
+
+        <div class="profile-desc" id="sidebarProfileDesc">3° Anno ITI - Indirizzo Informatica</div>
+      </div>
+
+      <div class="sidebar-channels-scroll">
+        <div class="channel-category-label">Chat Libera & Oltre Scuola</div>
+        <button class="channel-btn" data-channel="general" onclick="switchChannel('general')">
+          <span>💬</span>
+          <span>Chat Libera (GPT / Gemini)</span>
+        </button>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 10px;">
+          <div class="channel-category-label" style="margin:0;">Canali Didattici</div>
+          <div style="display:flex; gap:4px;">
+            <button class="action-btn" style="padding:2px 6px; font-size:11px;" onclick="openAddChannelModal()" title="Aggiungi nuovo canale/materia">➕</button>
+            <button class="action-btn" style="padding:2px 6px; font-size:11px;" onclick="openArchivedChannelsModal()" title="Archivio canali rimossi">📂</button>
+          </div>
+        </div>
+
+        <div id="dynamicChannelsList">
+          <button class="channel-btn active" data-channel="hub" onclick="switchChannel('hub')">
+            <span>🌐</span>
+            <span>Hub Centrale</span>
+          </button>
+
+          <button class="channel-btn" data-channel="matematica" onclick="switchChannel('matematica')">
+            <span>📐</span>
+            <span>Matematica</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="matematica" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="informatica" onclick="switchChannel('informatica')">
+            <span>💻</span>
+            <span>Informatica (C++)</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="informatica" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="sistemi" onclick="switchChannel('sistemi')">
+            <span>🖧</span>
+            <span>Sistemi e Reti</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="sistemi" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="tpsit" onclick="switchChannel('tpsit')">
+            <span>⚙️</span>
+            <span>TPSIT</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="tpsit" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="telecomunicazioni" onclick="switchChannel('telecomunicazioni')">
+            <span>📡</span>
+            <span>Telecomunicazioni</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="telecomunicazioni" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="italiano" onclick="switchChannel('italiano')">
+            <span>📚</span>
+            <span>Italiano</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="italiano" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="storia" onclick="switchChannel('storia')">
+            <span>🏛️</span>
+            <span>Storia</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="storia" style="display:none;"></span>
+          </button>
+
+          <button class="channel-btn" data-channel="inglese" onclick="switchChannel('inglese')">
+            <span>🇬🇧</span>
+            <span>Inglese Tecnico</span>
+            <span class="channel-badge badge-orange" data-assessment-badge="inglese" style="display:none;"></span>
+          </button>
+        </div>
+
+        <div class="channel-category-label" style="margin-top: 10px;">Moduli Avanzati</div>
+
+        <button class="channel-btn" data-channel="mappe" onclick="switchChannel('mappe')">
+          <span>🧠</span>
+          <span>Mappe Concettuali & Quiz</span>
+        </button>
+
+        <button class="channel-btn" data-channel="interrogazione" onclick="switchChannel('interrogazione')">
+          <span>🎙️</span>
+          <span>Simulatore Orale</span>
+        </button>
+
+        <button class="channel-btn" onclick="openTestSolverModal()">
+          <span>📝</span>
+          <span>Risolvi Verifica / Test</span>
+        </button>
+
+        <button class="channel-btn" onclick="openMobileInstallModal()">
+          <span>📱</span>
+          <span>App iPhone / iPad / PWA</span>
+        </button>
+
+        <button class="channel-btn" onclick="openShortcutsModal()">
+          <span>⌨️</span>
+          <span>Scorciatoie Tastiera</span>
+        </button>
+
+        <div class="channel-category-label" style="margin-top: 10px;">Strumenti Diretti</div>
+
+        <button class="channel-btn" onclick="openGradesModal()">
+          <span>📊</span>
+          <span>Registro Voti Argo & Obiettivo</span>
+        </button>
+
+        <button class="channel-btn" onclick="openAgendaModal()">
+          <span>📅</span>
+          <span>Smart Agenda Argo</span>
+        </button>
+
+        <button class="channel-btn" onclick="openCodeSandboxModal()">
+          <span>💻</span>
+          <span>Dev-C++ 5.11 Lab (C / C++)</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Workspace -->
+    <section class="studio-main-chat">
+      <div class="channel-header-bar">
+        <div class="channel-header-info">
+          <h2 id="currentChannelTitle">🌐 HUB CENTRALE DI COMANDO</h2>
+          <p id="currentChannelSubtitle">Panoramica didattica, resoconto priorità e registro di studio</p>
+        </div>
+        <div class="channel-header-actions">
+          <button class="action-btn" onclick="openOcrModal()">
+            <span>📷 SCANNER OCR</span>
+          </button>
+          <button class="action-btn" onclick="clearCurrentChannelHistory()">
+            <span>🗑️ PULISCI</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Stream -->
+      <div class="chat-stream-container" id="chatStream" onscroll="handleChatStreamScroll(this)"></div>
+
+      <!-- Floating Scroll to Bottom Button -->
+      <button id="scrollToBottomBtn" class="scroll-to-bottom-btn" onclick="scrollChatToBottom()" title="Torna all'ultimo messaggio">
+        <span>⬇️</span>
+      </button>
+
+      <!-- Gemini-Style Attached Document Card -->
+      <div id="attachedFileContainer" class="attached-file-container" style="display: none;">
+        <div class="attached-file-card" id="attachedFileCard">
+          <div class="file-card-icon" id="fileCardIcon">📄</div>
+          <div class="file-card-details">
+            <div class="file-card-name-row">
+              <span class="file-card-name" id="fileCardName">documento.pdf</span>
+              <button type="button" class="file-card-open-btn" id="fileCardOpenBtn" title="Apri e visualizza il documento" onclick="openAttachedFileInViewer()">👁️ Apri PDF</button>
+            </div>
+            <div class="file-card-status-row">
+              <span class="file-card-status" id="fileCardStatus">⏳ Scansione in corso...</span>
+              <div class="file-card-progress-bar" id="fileCardProgressBar"><div class="file-card-progress-fill" id="fileCardProgressFill"></div></div>
+            </div>
+          </div>
+          <button type="button" class="file-card-remove-btn" onclick="removeAttachedFile()" title="Rimuovi allegato">&times;</button>
+        </div>
+      </div>
+
+      <!-- Gemini-Style Floating Bottom Input Bar -->
+      <footer class="gemini-input-dock">
+        <!-- Prompt Templates Bar (Horizontal Scroll) -->
+        <div class="prompt-templates-bar">
+          <label class="prompt-chip gen-image-chip" title="Spunta per richiedere a J.A.R.V.I.S. di generare un'immagine o mappa visiva per questo messaggio">
+            <input type="checkbox" id="genImageCheckbox" style="margin-right: 4px; accent-color: var(--cyan-bright); cursor: pointer;">
+            <span>🖼️ Immagine</span>
+          </label>
+          <button type="button" class="prompt-chip" onclick="applyPromptTemplate('Spiega questo concetto come se avessi 5 anni, in modo chiaro e con esempi pratici:')">👶 Spiega semplice</button>
+          <button type="button" class="prompt-chip" onclick="applyPromptTemplate('Analizza questo codice C++ cercando ottimizzazioni di memoria, complessità e possibili bug:')">⚡ Ottimizza C++</button>
+          <button type="button" class="prompt-chip" onclick="applyPromptTemplate('Genera un quiz di ripasso di 5 domande con relative soluzioni su questo argomento:')">📝 Quiz rapido</button>
+          <button type="button" class="prompt-chip" onclick="applyPromptTemplate('Genera una mappa concettuale ad albero con rami chiari ASCII/Unicode su questo argomento:')">🧠 Mappa ad albero</button>
+        </div>
+
+        <!-- The Gemini Capsule -->
+        <div class="gemini-capsule">
+          <input type="file" id="directFileInput" accept="image/*,.pdf,.txt,.c,.cpp,.doc,.docx,video/*" style="display: none;" onchange="handleDirectFileUpload(event)">
+          <button type="button" class="gemini-icon-btn" onclick="triggerDirectFileAttach()" title="Allega documento, PDF, foto appunti">
+            <span>📎</span>
+          </button>
+
+          <textarea id="chatInput" class="gemini-textarea auto-expand-textarea" rows="1" placeholder="Chiedi a J.A.R.V.I.S..." onkeydown="handleInputKeyDown(event)" oninput="autoExpandTextarea(this)"></textarea>
+
+          <button type="button" id="holdToTalkBtn" class="gemini-icon-btn mic-btn" title="Clicca per attivare o disattivare il microfono">
+            <span>🎙️</span>
+          </button>
+
+          <button type="button" id="sendBtn" class="gemini-send-btn" onclick="handleSendMessage()" title="Invia messaggio (o premi Invio)">
+            <span>➤</span>
+          </button>
+        </div>
+      </footer>
+    </section>
+
+  </main>
+
+  <!-- ====================================================================
+       SCHEDA B: SYSTEM HUD STARK (ISPIRATA AD IMMAGINE media_1791055018380.jpg)
+       ==================================================================== -->
+  <main id="viewStarkB">
+    <div class="stark-hud-grid"></div>
+
+    <!-- Stark Return Bar (Sempre visibile per tornare a Studio/Chat con 1 click) -->
+    <div class="stark-return-bar" style="display:flex; justify-content:space-between; align-items:center; padding: 10px 16px; background: rgba(6, 11, 23, 0.92); border-bottom: 1px solid var(--cyan-bright); z-index: 60; position: relative;">
+      <button type="button" class="action-btn" style="border-color:#00f0ff; color:#00f0ff; font-weight:700; padding:6px 14px; background:rgba(0,240,255,0.1); border-radius:18px;" onclick="switchMainTab('studio')">
+        ⬅️ Torna alla Chat / Studio
+      </button>
+      <button type="button" class="action-btn" style="border-color:#00f0ff; color:#00f0ff; border-radius:8px; padding:6px 12px;" onclick="toggleMobileSidebar()" title="Menu Canali">
+        ☰ Menu
+      </button>
+    </div>
+
+    <!-- Top Tick Bar 01..30 -->
+    <div class="stark-top-ticks">
+      <span>01</span><span>02</span><span>03</span><span>04</span><span>05</span>
+      <span>06</span><span>07</span><span>08</span><span>09</span><span>10</span>
+      <span>11</span><span>12</span><span>13</span><span>14</span><span>15</span>
+      <span>16</span><span>17</span><span>18</span><span>19</span><span>20</span>
+      <span>21</span><span>22</span><span>23</span><span>24</span><span>25</span>
+      <span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
+    </div>
+
+    <!-- Cockpit 3-Column Layout -->
+    <div class="stark-cockpit-container">
+      
+      <!-- Left Panel: Storage & Energy -->
+      <div class="stark-left-panel">
+        <div class="stark-holo-widget">
+          <div class="widget-header">
+            <span class="widget-title">ARCHIVIO DISCO & MEMORIA</span>
+            <span class="widget-value-tag">SSD ONLINE</span>
+          </div>
+          <div class="gauge-row">
+            <span>DISCO C:</span>
+            <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width: 65%;"></div></div>
+            <span>209 GB LIBERI</span>
+          </div>
+          <div class="gauge-row">
+            <span>DISCO E:</span>
+            <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width: 25%;"></div></div>
+            <span>480 GB LIBERI</span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 6px;">
+            FILE STUDENTE INDICIZZATI: <strong style="color:var(--cyan-bright);">510 ELEMENTI</strong>
+          </div>
+        </div>
+
+        <div class="stark-holo-widget">
+          <div class="widget-header">
+            <span class="widget-title">ENERGIA REATTORE ARC</span>
+            <span class="widget-value-tag" style="color:var(--green-ok);">100% OPTIMAL</span>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-around; padding: 10px 0;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--cyan-bright); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px var(--cyan-bright);">
+              <span style="font-size: 16px; font-weight: 700; color: #fff;">100%</span>
+            </div>
+            <div style="font-size: 11px; line-height: 1.6;">
+              <div>POTENZA: <strong>MASSIMA</strong></div>
+              <div>STATO NUCLEO: <strong>STABILE</strong></div>
+              <div>RAFFREDDAMENTO: <strong>ATTIVO</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="stark-holo-widget">
+          <div class="widget-header">
+            <span class="widget-title">RETE & TELEMETRIA API</span>
+            <span class="widget-value-tag" id="networkPing">14 ms</span>
+          </div>
+          <div class="gauge-row">
+            <span>UP: <strong>0.0 KB/s</strong></span>
+            <span>DOWN: <strong>0.0 KB/s</strong></span>
+          </div>
+          <div style="font-size: 11px; color: var(--text-dim); margin-top: 4px;">
+            GATEWAY CLOUD: <strong style="color:var(--cyan-bright);">Google Generative Language API</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Cockpit: Concentric Rotating Arc Reactor HUD -->
+      <div class="stark-center-core">
+        <div class="arc-reactor-superhud">
+          <svg class="reactor-svg-rings" viewBox="0 0 500 500">
+            <!-- Outer Ring Rotating Clockwise -->
+            <circle class="ring-outer-rotating" cx="250" cy="250" r="235" fill="none" stroke="rgba(0, 240, 255, 0.4)" stroke-width="2" stroke-dasharray="10 8 4 8" />
+            <circle class="ring-outer-rotating" cx="250" cy="250" r="225" fill="none" stroke="rgba(0, 119, 255, 0.5)" stroke-width="4" stroke-dasharray="35 15 5 15" />
+            
+            <!-- Degree Ticks -->
+            <circle cx="250" cy="250" r="205" fill="none" stroke="rgba(0, 240, 255, 0.3)" stroke-width="1" stroke-dasharray="2 6" />
+
+            <!-- Inner Counter-Rotating Ring -->
+            <circle class="ring-inner-counter" cx="250" cy="250" r="180" fill="none" stroke="rgba(0, 240, 255, 0.6)" stroke-width="3" stroke-dasharray="25 10 10 10" />
+            <circle class="ring-inner-counter" cx="250" cy="250" r="150" fill="none" stroke="rgba(0, 119, 255, 0.4)" stroke-width="2" stroke-dasharray="40 20" />
+
+            <!-- Reticles & Crosshairs -->
+            <line x1="250" y1="10" x2="250" y2="490" stroke="rgba(0, 240, 255, 0.15)" stroke-width="1" stroke-dasharray="4 4" />
+            <line x1="10" y1="250" x2="490" y2="250" stroke="rgba(0, 240, 255, 0.15)" stroke-width="1" stroke-dasharray="4 4" />
+            
+            <!-- Target Arcs -->
+            <path d="M 210,90 A 170,170 0 0,1 290,90" fill="none" stroke="var(--cyan-bright)" stroke-width="4" />
+            <path d="M 210,410 A 170,170 0 0,0 290,410" fill="none" stroke="var(--cyan-bright)" stroke-width="4" />
+          </svg>
+
+          <!-- Core Iron Man Wireframe & Digital Time -->
+          <div class="reactor-center-ironman">
+            <svg class="ironman-wireframe" viewBox="0 0 100 100" fill="none" stroke="var(--cyan-bright)" stroke-width="2">
+              <polygon points="50,15 65,30 60,65 50,85 40,65 35,30" />
+              <line x1="42" y1="42" x2="48" y2="42" stroke="white" stroke-width="2" />
+              <line x1="52" y1="42" x2="58" y2="42" stroke="white" stroke-width="2" />
+              <circle cx="50" cy="55" r="5" fill="var(--cyan-bright)" />
+            </svg>
+            <div id="starkDigitalTime" class="reactor-digital-time">22:38:15</div>
+            <div class="reactor-mode-label">SISTEMI LIVE OPERATIVI</div>
+          </div>
+        </div>
+
+        <!-- Audio Frequency Reactance Bars -->
+        <div class="audio-spectrum-bars" id="audioSpectrumBars">
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+          <div class="audio-bar"></div><div class="audio-bar"></div><div class="audio-bar"></div>
+        </div>
+      </div>
+
+      <!-- Right Panel: Self-Healing Log & Dynamic Widgets -->
+      <div class="stark-right-panel">
+        <div class="stark-holo-widget">
+          <div class="widget-header">
+            <span class="widget-title">JARVIS WATCHDOG & SELF-HEALING</span>
+            <span class="widget-value-tag" style="color:var(--green-ok);">ATTIVO</span>
+          </div>
+          <div class="stark-console-stream" id="starkConsoleStream">
+            <div class="console-entry"><span class="console-time">[INIT]</span> <span class="console-tag">WATCHDOG:</span> Jarvis di Supporto operativo in background.</div>
+            <div class="console-entry"><span class="console-time">[READY]</span> <span class="console-tag">FAILOVER:</span> Cascade multi-modello attiva.</div>
+          </div>
+        </div>
+
+        <div class="stark-holo-widget">
+          <div class="widget-header">
+            <span class="widget-title">CARICO COMPUTAZIONALE</span>
+            <span class="widget-value-tag">NORMALE</span>
+          </div>
+          <div class="gauge-row">
+            <span>CPU:</span>
+            <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width: 36%;"></div></div>
+            <span>36%</span>
+          </div>
+          <div class="gauge-row">
+            <span>RAM:</span>
+            <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width: 30%;"></div></div>
+            <span>30%</span>
+          </div>
+          <div class="gauge-row">
+            <span>SWAP:</span>
+            <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width: 16%;"></div></div>
+            <span>16%</span>
+          </div>
+        </div>
+
+        <!-- Custom Dynamic Widgets Container (Generati via chat da Jarvis Principale) -->
+        <div id="starkCustomWidgetsContainer" style="display: flex; flex-direction: column; gap: 14px;"></div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Futuristic Circular Dock (Esattamente come in media_1791055018380.jpg) -->
+    <div class="stark-bottom-dock">
+      <div class="stark-dock-btn" onclick="switchMainTab('studio')" title="Scheda A Studio">
+        <span>📖</span>
+        <div class="dock-tooltip">Studio & Chat</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openGradesModal()" title="Registro Voti">
+        <span>📊</span>
+        <div class="dock-tooltip">Registro Voti</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openAgendaModal()" title="Smart Agenda Argo">
+        <span>📅</span>
+        <div class="dock-tooltip">Agenda Argo</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openCodeSandboxModal()" title="Informatica Sandbox">
+        <span>💻</span>
+        <div class="dock-tooltip">Informatica Lab</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openOralModal()" title="Simulatore Orale">
+        <span>🎙️</span>
+        <div class="dock-tooltip">Simulatore Orale</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openMappeModal()" title="Mappe & Quiz">
+        <span>🧠</span>
+        <div class="dock-tooltip">Mappe & Quiz</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openOcrModal()" title="Scanner OCR">
+        <span>📷</span>
+        <div class="dock-tooltip">Scanner OCR</div>
+      </div>
+      <div class="stark-dock-btn" onclick="openSettingsModal()" title="Configurazione">
+        <span>⚙️</span>
+        <div class="dock-tooltip">Configurazione</div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ====================================================================
+       MODAL WINDOWS FOR ADVANCED MODULES
+       ==================================================================== -->
+  
+  <!-- MODAL: REGISTRO VOTI ARGO DIDUP & OBIETTIVO (SEZIONE 3 & IMMAGINE 1) -->
+  <div id="modalGrades" class="modal-overlay">
+    <div class="modal-container" style="width: 820px; max-width: 95vw;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:22px;">📊</span>
+          <div>
+            <h3 style="margin:0; font-size:15px;">REGISTRO ELETTRONICO ARGO DIDUP - VOTI E MEDIE</h3>
+            <p style="margin:0; font-size:11px; color:var(--text-dim);">Studente: Damiano • 3° Anno ITI Informatica • Calcolatore Obiettivo Voto</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalGrades')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding: 16px;">
+        <!-- Sub-tabs: Argo List vs Aggiungi Voto -->
+        <div style="display: flex; gap: 8px; margin-bottom: 14px; border-bottom: 1px solid rgba(0,240,255,0.2); padding-bottom: 8px;">
+          <button id="gradesTabArgoBtn" class="action-btn" style="background:var(--cyan-bright); color:#000; font-weight:700;" onclick="switchGradesSubTab('argo')">
+            📱 VISTA REGISTRO ARGO DIDUP
+          </button>
+          <button id="gradesTabAddBtn" class="action-btn" onclick="switchGradesSubTab('add')">
+            ➕ AGGIUNGI / MODIFICA VOTO
+          </button>
+        </div>
+
+        <!-- VIEW 1: Argo DidUP Subject List (Matching Image 1) -->
+        <div id="gradesArgoView">
+          <div id="argoGradesListContainer" class="argo-grades-list"></div>
+
+          <!-- Subject Detail & Target Grade Calculator -->
+          <div id="argoSubjectDetailCard" class="target-calc-card" style="display:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <h4 id="argoDetailSubjectName" style="margin:0; color:var(--cyan-bright); font-size:14px;">DETTAGLIO MATERIA</h4>
+              <button class="action-btn" style="padding:2px 8px; font-size:11px;" onclick="closeArgoSubjectDetail()">✕ Chiudi Dettaglio</button>
+            </div>
+            
+            <div id="argoDetailGradesChips" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;"></div>
+
+            <!-- Target Calculator ("Quanto mi serve per farla alzare") -->
+            <div class="target-calc-title">🎯 CALCOLATORE OBIETTIVO VOTO ("QUANTO MI SERVE PER FARLA ALZARE")</div>
+            <div class="target-calc-grid">
+              <div class="form-group" style="margin:0;">
+                <label class="form-label" style="font-size:11px;">Media Obiettivo Desiderata:</label>
+                <select id="targetGradeGoalSelect" class="form-control" onchange="calculateGradeTarget()">
+                  <option value="6.0">Sufficienza (6.0)</option>
+                  <option value="7.0" selected>Distinto (7.0)</option>
+                  <option value="8.0">Ottimo (8.0)</option>
+                  <option value="9.0">Eccellente (9.0)</option>
+                  <option value="10.0">Massimo (10.0)</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label" style="font-size:11px;">In quante verifiche/interrogazioni:</label>
+                <select id="targetGradeTestsCountSelect" class="form-control" onchange="calculateGradeTarget()">
+                  <option value="1" selected>In 1 verifica</option>
+                  <option value="2">In 2 verifiche</option>
+                  <option value="3">In 3 verifiche</option>
+                  <option value="4">In 4 verifiche</option>
+                </select>
+              </div>
+            </div>
+            <div id="targetGradeResultBox" class="target-calc-result">Seleziona una materia per calcolare i voti necessari.</div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: Add Grade Form -->
+        <div id="gradesAddView" style="display:none;">
+          <div style="background: rgba(0,0,0,0.3); padding: 14px; border-radius: 8px; border: 1px solid var(--border-cyan); margin-bottom: 20px;">
+            <h4 style="font-size: 13px; color: var(--cyan-bright); margin-bottom: 10px;">➕ AGGIUNGI NUOVO VOTO</h4>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Materia</label>
+                <select id="newGradeSubject" class="form-control">
+                  <option value="italiano">Lingua e Letteratura Italiana</option>
+                  <option value="storia">Storia</option>
+                  <option value="matematica">Matematica e Complementi</option>
+                  <option value="inglese">Lingua Inglese</option>
+                  <option value="informatica">Informatica</option>
+                  <option value="sistemi">Sistemi e Reti</option>
+                  <option value="tpsit">TPSIT</option>
+                  <option value="telecomunicazioni">Telecomunicazioni</option>
+                  <option value="civica">Educazione Civica</option>
+                  <option value="motoria">Scienze Motorie e Sportive</option>
+                  <option value="religione">Religione</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Voto (1-10)</label>
+                <input type="number" id="newGradeVal" class="form-control" min="1" max="10" step="0.25" value="7.0">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Peso (es. 1.0)</label>
+                <input type="number" id="newGradeWeight" class="form-control" min="0.1" max="2" step="0.1" value="1.0">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Data</label>
+                <input type="date" id="newGradeDate" class="form-control">
+              </div>
+              <div class="form-group" style="margin:0;">
+                <label class="form-label">Tipologia</label>
+                <select id="newGradeType" class="form-control">
+                  <option value="Scritto">Scritto</option>
+                  <option value="Orale">Orale</option>
+                  <option value="Pratico">Pratico / Lab</option>
+                  <option value="Non Fa Media">Non fa media</option>
+                </select>
+              </div>
+              <button class="action-btn" style="height: 38px; background: var(--cyan-bright); color: #000; font-weight: 700;" onclick="submitNewGrade()">
+                SALVA VOTO
+              </button>
+            </div>
+          </div>
+          <div id="gradesTableContainer"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SMART AGENDA & DEDUPLICAZIONE ARGO (SEZIONE 3) -->
+  <div id="modalAgenda" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>📅 SMART AGENDA & SINCRONIZZAZIONE DEDUPLICATA ARGO</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalAgenda')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: rgba(0, 240, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px solid var(--border-cyan); margin-bottom: 16px; font-size: 13px;">
+          <strong>Algoritmo di Deduplicazione Attivo:</strong> Gli eventi provenienti dal registro Argo o inseriti a voce/testo vengono automaticamente confrontati per data, materia e titolo. I duplicati vengono unificati istantaneamente senza sovrapposizioni.
+        </div>
+
+        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+          <input type="text" id="newAgendaTitle" class="form-control" placeholder="Titolo compito o verifica...">
+          <select id="newAgendaEventType" class="form-control" style="width: 190px;">
+            <option value="homework">Compito per Casa</option>
+            <option value="project">Progetto/Consegna</option>
+            <option value="written_test">Verifica Scritta</option>
+            <option value="oral_test">Interrogazione Orale</option>
+          </select>
+          <select id="newAgendaSubject" class="form-control" style="width: 220px;">
+            <option value="matematica">Matematica</option>
+            <option value="informatica">Informatica</option>
+            <option value="sistemi">Sistemi e Reti</option>
+            <option value="tpsit">TPSIT</option>
+            <option value="telecomunicazioni">Telecomunicazioni</option>
+            <option value="italiano">Italiano</option>
+            <option value="storia">Storia</option>
+            <option value="inglese">Inglese</option>
+          </select>
+          <input type="date" id="newAgendaDate" class="form-control" style="width: 170px;">
+          <button class="action-btn" style="background: var(--cyan-bright); color: #000; font-weight: 700; white-space: nowrap;" onclick="submitNewAgendaEvent()">
+            AGGIUNGI COMPITO
+          </button>
+        </div>
+
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 16px;">
+          <label class="action-btn" style="cursor:pointer; background: rgba(0,240,255,0.08);">
+            <input type="file" id="argoHomeworkFileInput" accept="image/*" style="display:none;" onchange="handleArgoHomeworkUpload(event)">
+            <span>📷 CARICA SCREENSHOT ARGO</span>
+          </label>
+          <button class="action-btn" style="background: rgba(0,255,170,0.12); color: var(--green-ok);" onclick="triggerManualArgoParsing()">
+            ✨ ESTRAI COMPITI DALLA FOTO
+          </button>
+        </div>
+
+        <div id="argoHomeworkSummary" style="display:none; margin-bottom: 16px; background: rgba(0,255,170,0.06); border: 1px solid rgba(0,255,170,0.25); border-radius: 8px; padding: 12px; font-size: 12px; color: var(--text-main);"></div>
+
+        <section style="margin-top: 18px;">
+          <h4 style="color: var(--orange-warn); border-bottom: 1px solid var(--orange-warn); padding-bottom: 8px;">VERIFICHE &amp; INTERROGAZIONI</h4>
+          <div id="agendaAssessmentsList"></div>
+        </section>
+        <section style="margin-top: 22px;">
+          <h4 style="color: var(--cyan-bright); border-bottom: 1px solid var(--cyan-bright); padding-bottom: 8px;">COMPITI PER CASA &amp; PROGETTI</h4>
+          <div id="agendaHomeworkList"></div>
+        </section>
+        <section style="margin-top: 22px;">
+          <h4 style="color: var(--text-dim); border-bottom: 1px solid var(--text-dim); padding-bottom: 8px;">COMPITI PRECEDENTI</h4>
+          <div id="agendaPreviousHomeworkList"></div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DEV-C++ 5.11 FUTURISTIC C/C++ IDE (SEZIONE 4 & IMMAGINE 2) -->
+  <div id="modalCodeSandbox" class="modal-overlay">
+    <div class="modal-container" style="width: 1180px; max-width: 98vw; padding: 0;">
+      <div class="devcpp-window">
+        <!-- Dev-C++ Menu Bar -->
+        <div class="devcpp-menubar">
+          <span style="font-weight:700; color:var(--cyan-bright); margin-right:8px;">Dev-C++ 5.11 (J.A.R.V.I.S. Edition)</span>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('file')">File</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('modifica')">Modifica</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('cerca')">Cerca</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('visualizza')">Visualizza</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('progetto')">Progetto</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('esegui')">Esegui</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('strumenti')">Strumenti</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('astyle')">AStyle</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('finestra')">Finestra</div>
+          <div class="devcpp-menu-item" onclick="devCppMenuAction('help')">Help</div>
+          <div style="flex:1;"></div>
+          <button class="modal-close-btn" style="padding:2px 8px; font-size:16px;" onclick="closeModal('modalCodeSandbox')">&times;</button>
+        </div>
+
+        <!-- Dev-C++ Toolbar -->
+        <div class="devcpp-toolbar">
+          <button class="devcpp-tool-btn" onclick="devCppNewFile()" title="Nuovo File (Ctrl+N)">📄 Nuovo</button>
+          <button class="devcpp-tool-btn" onclick="devCppOpenFile()" title="Apri File (Ctrl+O)">📂 Apri</button>
+          <button class="devcpp-tool-btn" onclick="devCppSaveFile()" title="Salva (Ctrl+S)">💾 Salva</button>
+          <button class="devcpp-tool-btn" onclick="devCppSaveAll()" title="Salva Tutto">💾💾 Salva Tutto</button>
+          <div style="width:1px; height:18px; background:rgba(255,255,255,0.2); margin:0 4px;"></div>
+          <button class="devcpp-tool-btn" style="background:rgba(0,240,255,0.15); border-color:var(--cyan-bright); color:var(--cyan-bright);" onclick="devCppCompile(false)" title="Compila (F9)">⚙️ Compila (F9)</button>
+          <button class="devcpp-tool-btn" style="background:rgba(34,197,94,0.15); border-color:#22c55e; color:#22c55e;" onclick="devCppRun()" title="Esegui (F10)">▶ Esegui (F10)</button>
+          <button class="devcpp-tool-btn" style="background:rgba(0,255,170,0.2); border-color:var(--green-ok); color:#fff; font-weight:700;" onclick="devCppCompile(true)" title="Compila ed Esegui (F11)">⚙️▶ Compila &amp; Esegui (F11)</button>
+          <button class="devcpp-tool-btn" onclick="devCppRebuildAll()" title="Ricompila Tutto (F12)">🔄 Ricompila Tutto</button>
+          <div style="width:1px; height:18px; background:rgba(255,255,255,0.2); margin:0 4px;"></div>
+          <select id="devCppCompilerSelect" class="form-control" style="width:200px; padding:2px 6px; font-size:11px;">
+            <option value="tdm64">TDM-GCC 4.9.2 64-bit Release</option>
+            <option value="tdm32">TDM-GCC 4.9.2 32-bit Release</option>
+            <option value="gcc9">GCC 9.2 C++17 (Strict)</option>
+            <option value="c99">GCC C99 Standard (C)</option>
+          </select>
+          <select class="form-control" style="width:110px; padding:2px 6px; font-size:11px;">
+            <option>(globals)</option>
+            <option>main()</option>
+          </select>
+          <div style="flex:1;"></div>
+          <button class="action-btn" style="padding:2px 8px; font-size:11px;" onclick="openQrShareModal()" title="Condividi codice su iPhone / iPad via QR Code">📱 QR Code</button>
+          <button class="action-btn" style="padding:2px 8px; font-size:11px;" onclick="toggleDevCppAssistant()" title="Attiva/Disattiva Assistente J.A.R.V.I.S.">🤖 J.A.R.V.I.S.</button>
+        </div>
+
+        <!-- Dev-C++ Main Split View -->
+        <div class="devcpp-main-split">
+          <!-- Left Workspace: Progetto / Classi / Snippet / Git -->
+          <div class="devcpp-left-pane">
+            <div style="display:flex; background:#1e293b; border-bottom:1px solid rgba(255,255,255,0.1);">
+              <button id="devCppLeftTabProjectBtn" class="devcpp-tab-btn active" onclick="switchDevCppLeftTab('project')">Progetto</button>
+              <button id="devCppLeftTabSnippetBtn" class="devcpp-tab-btn" onclick="switchDevCppLeftTab('snippet')">Snippet</button>
+              <button id="devCppLeftTabGitBtn" class="devcpp-tab-btn" onclick="switchDevCppLeftTab('git')">Git</button>
+            </div>
+            
+            <!-- Tab: Progetto (Tree View) -->
+            <div id="devCppLeftTabProject" style="flex:1; padding:8px; font-size:12px; overflow-y:auto;">
+              <div style="color:var(--cyan-bright); font-weight:700; margin-bottom:6px;">📦 Progetto1.dev</div>
+              <div style="padding-left:14px; display:flex; flex-direction:column; gap:4px;">
+                <div class="devcpp-file-item active" onclick="devCppSwitchFile('main.cpp')">📄 main.cpp</div>
+                <div class="devcpp-file-item" onclick="devCppSwitchFile('funzioni.cpp')">📄 funzioni.cpp</div>
+                <div class="devcpp-file-item" onclick="devCppSwitchFile('funzioni.h')">📋 funzioni.h</div>
+              </div>
+              <div style="margin-top:14px; border-top:1px solid rgba(255,255,255,0.08); padding-top:8px;">
+                <button class="action-btn" style="width:100%; font-size:11px; justify-content:center;" onclick="devCppAddNewProjectFile()">+ Aggiungi File .cpp/.h</button>
+              </div>
+            </div>
+
+            <!-- Tab: Snippet Intelligenti Personalizzabili -->
+            <div id="devCppLeftTabSnippet" style="flex:1; padding:8px; font-size:11px; overflow-y:auto; display:none;">
+              <div style="color:var(--cyan-bright); font-weight:700; margin-bottom:6px;">⚡ Snippet C++ Rapidi</div>
+              <div style="display:flex; flex-direction:column; gap:6px;">
+                <button class="action-btn" style="text-align:left; font-size:11px; padding:4px 6px;" onclick="insertDevCppSnippet('for')">🔁 Ciclo for iterativo</button>
+                <button class="action-btn" style="text-align:left; font-size:11px; padding:4px 6px;" onclick="insertDevCppSnippet('while')">🔄 Ciclo while</button>
+                <button class="action-btn" style="text-align:left; font-size:11px; padding:4px 6px;" onclick="insertDevCppSnippet('class')">🏛️ Definizione Classe C++</button>
+                <button class="action-btn" style="text-align:left; font-size:11px; padding:4px 6px;" onclick="insertDevCppSnippet('struct')">📦 Struttura struct</button>
+                <button class="action-btn" style="text-align:left; font-size:11px; padding:4px 6px;" onclick="insertDevCppSnippet('pointer')">🎯 Allocazione Puntatori (new/delete)</button>
+                <button class="action-btn" style="text-align:left; font-size:11px; padding:4px 6px;" onclick="insertDevCppSnippet('node')">🔗 Nodo Lista Concatenata</button>
+              </div>
+            </div>
+
+            <!-- Tab: Git & Controllo Versione Locale -->
+            <div id="devCppLeftTabGit" style="flex:1; padding:8px; font-size:11px; overflow-y:auto; display:none;">
+              <div style="color:var(--cyan-bright); font-weight:700; margin-bottom:6px;">🌿 Controllo Versione Locale</div>
+              <button class="action-btn" style="width:100%; font-size:11px; margin-bottom:8px; background:var(--green-ok); color:#000; font-weight:700;" onclick="devCppGitCommit()">💾 Salva Snapshot (Commit)</button>
+              <button class="action-btn" style="width:100%; font-size:11px; margin-bottom:12px; background:rgba(239,68,68,0.2); border-color:#ef4444;" onclick="devCppGitRollback()">⏮️ Ripristina Snapshot</button>
+              <div style="font-size:10px; color:#94a3b8; margin-bottom:4px;">Storico Snapshot:</div>
+              <div id="devCppGitLogList" style="display:flex; flex-direction:column; gap:4px;"></div>
+            </div>
+          </div>
+
+          <!-- Center: Editor & Bottom Dev-C++ Tabs -->
+          <div class="devcpp-center-pane">
+            <div class="devcpp-editor-wrap">
+              <div id="devCppGutter" class="devcpp-gutter">1</div>
+              <textarea id="devCppEditor" class="devcpp-editor" spellcheck="false" oninput="devCppOnEditorInput()" onkeydown="devCppOnKeyDown(event)"></textarea>
+            </div>
+
+            <!-- Bottom Dev-C++ Tabs -->
+            <div class="devcpp-bottom-tabs">
+              <div class="devcpp-tab-headers">
+                <button id="devCppBottomTabCompBtn" class="devcpp-tab-btn active" onclick="switchDevCppBottomTab('compiler')">Compilatore</button>
+                <button id="devCppBottomTabLogBtn" class="devcpp-tab-btn" onclick="switchDevCppBottomTab('log')">Log di Compilazione</button>
+                <button id="devCppBottomTabResBtn" class="devcpp-tab-btn" onclick="switchDevCppBottomTab('resources')">Risorse</button>
+                <button id="devCppBottomTabDebugBtn" class="devcpp-tab-btn" onclick="switchDevCppBottomTab('debug')">Debug</button>
+                <button id="devCppBottomTabSearchBtn" class="devcpp-tab-btn" onclick="switchDevCppBottomTab('search')">Risultati Ricerca</button>
+              </div>
+              <div id="devCppTabContent" class="devcpp-tab-content">
+                Pronto per compilare. Premere F9 per compilare o F11 per compilare ed eseguire.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: J.A.R.V.I.S. Coding Assistant -->
+          <div id="devCppAssistantPane" class="devcpp-right-assistant">
+            <div style="padding:8px 12px; background:#1e293b; border-bottom:1px solid rgba(0,240,255,0.2); display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:12px; font-weight:700; color:var(--cyan-bright);">🤖 J.A.R.V.I.S. C++ TUTOR</span>
+              <button class="action-btn" style="padding:1px 6px; font-size:10px;" onclick="clearDevCppChat()">Pulisci</button>
+            </div>
+            
+            <div id="devCppAssistantChat" style="flex:1; padding:10px; overflow-y:auto; font-size:12px; display:flex; flex-direction:column; gap:8px;">
+              <div style="background:rgba(0,240,255,0.06); padding:8px 10px; border-radius:6px; border-left:2px solid var(--cyan-bright);">
+                Salve, Signore. Sono pronto ad assisterla nella stesura, debug ed ottimizzazione del codice C++. Mi parli liberamente o compili per analizzare eventuali errori sintattici.
+              </div>
+            </div>
+
+            <!-- Assistant Input with Hold-To-Talk Voice -->
+            <div style="padding:8px; background:#0e1726; border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:6px;">
+              <button id="devCppVoiceBtn" class="action-btn" style="padding:6px 10px;" onclick="toggleDevCppVoiceTalk()" title="Microfono (parli e prema invio)">🎙️</button>
+              <input type="text" id="devCppAssistantInput" class="form-control" style="font-size:11px;" placeholder="Chiedi spiegazione o correzione..." onkeydown="if(event.key==='Enter') devCppSendAssistantMessage()">
+              <button class="action-btn" style="padding:6px 10px; background:var(--cyan-bright); color:#000; font-weight:700;" onclick="devCppSendAssistantMessage()">✈️</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SIMULATORE ORALE (SEZIONE 3) -->
+  <div id="modalOral" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>🎙️ SIMULATORE DI INTERROGAZIONE ORALE INTERATTIVO</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalOral')">&times;</button>
+      </div>
+      <div class="modal-body" id="oralSimulatorBody">
+        <div style="margin-bottom: 16px;">
+          <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 10px;">
+            Simula un'interrogazione reale guidata dall'IA con domande mirate, valutazione dei prerequisiti e scheda finale con punti di forza e voto stimato.
+          </p>
+          <div style="display: flex; gap: 10px;">
+            <select id="oralSubjectSelect" class="form-control">
+              <option value="matematica">Matematica (Equazioni, Disequazioni, Parabola)</option>
+              <option value="sistemi">Sistemi e Reti (Modello ISO/OSI & Subnetting)</option>
+              <option value="informatica">Informatica (C++, Funzioni, Array & Strutture)</option>
+              <option value="tpsit">TPSIT (Processi, Thread & Architetture)</option>
+              <option value="telecomunicazioni">Telecomunicazioni (Segnali e Mezzi)</option>
+              <option value="italiano">Italiano</option>
+              <option value="storia">Storia</option>
+            </select>
+            <button class="action-btn" style="background: var(--cyan-bright); color: #000; font-weight: 700; white-space: nowrap;" onclick="startOralExamFlow()">
+              AVVIA SIMULAZIONE
+            </button>
+          </div>
+        </div>
+
+        <div id="oralActiveSessionContainer" style="display: none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MAPPE CONCETTUALI & QUIZ (SEZIONE 3) -->
+  <div id="modalMappe" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3>🧠 MAPPE CONCETTUALI VISUALI & GENERATORE QUIZ</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalMappe')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+          <input type="text" id="mapTopicInput" class="form-control" placeholder="Argomento per la mappa o quiz (es. Parabola, ISO/OSI, Puntatori C++)...">
+          <button class="action-btn" style="background: var(--cyan-bright); color:#000; font-weight: 700;" onclick="generateMapAndQuizFlow()">
+            GENERA MAPPA & QUIZ
+          </button>
+        </div>
+        <div id="mapRenderContainer" style="background: rgba(0,0,0,0.4); border: 1px solid var(--border-cyan); border-radius: 8px; padding: 15px; min-height: 250px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SCANNER OCR DOCUMENTI & LAVAGNA (SEZIONE 2) -->
+  <div id="modalOcr" class="modal-overlay">
+    <div class="modal-container" style="width: 600px;">
+      <div class="modal-header">
+        <h3>📷 SCANNER OCR DOCUMENTI & FOTO LAVAGNA</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalOcr')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px;">
+          Carica un documento PDF, file di testo o una foto di appunti/lavagna. Il parser estrarrà automaticamente il testo e le formule per inviarli a J.A.R.V.I.S.
+        </p>
+        <input type="file" id="ocrFileInput" accept="image/*,.pdf,.txt,.c,.cpp,.doc,.docx" class="form-control" onchange="handleOcrFileUpload(event)">
+        <div id="ocrProgress" style="display: none; margin-top: 14px; font-size: 13px; color: var(--cyan-bright);">
+          ⏳ Elaborazione OCR in corso con Tesseract.js...
+        </div>
+        <div id="ocrResultBox" style="margin-top: 14px; display: none;">
+          <label class="form-label">Testo Estratto:</label>
+          <textarea id="ocrExtractedText" class="form-control" style="height: 120px; font-family: var(--font-mono);"></textarea>
+          <button class="action-btn" style="margin-top: 10px; background: var(--green-ok); color: #000; font-weight: 700;" onclick="sendOcrTextToChat()">
+            INSERISCI IN CHAT & CHIEDI A JARVIS
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIGURAZIONE & PROFILI (SEZIONE 1) -->
+  <div id="modalSettings" class="modal-overlay">
+    <div class="modal-container" style="width: 600px;">
+      <div class="modal-header">
+        <h3>⚙️ CONFIGURAZIONE DI SISTEMA & CHIAVI API</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalSettings')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Google Gemini API Key (Header X-goog-api-key)</label>
+          <input type="password" id="settingsApiKey" class="form-control" placeholder="Inserisci Google Gemini API Key (opzionale)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Modello Principale Cloud</label>
+          <select id="settingsModelSelect" class="form-control">
+            <option value="gemini-flash-latest">Gemini Flash Latest (Cloud Default)</option>
+            <option value="gemma-4-26b-a4b-it">Gemma 4 26B Instruct (Ultra-Affidabile)</option>
+            <option value="gemini-3.8-flash">Gemini 3.8 Flash</option>
+            <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Credenziali Registro Elettronico Argo DidUP (Opzionali)</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <input type="text" id="argoScuola" class="form-control" placeholder="Codice Scuola">
+            <input type="text" id="argoUtente" class="form-control" placeholder="Nome Utente">
+            <input type="password" id="argoPass" class="form-control" placeholder="Password">
+          </div>
+        </div>
+        <button class="action-btn" style="background: var(--cyan-bright); color: #000; font-weight: 700; width: 100%; justify-content: center; height: 38px; margin-top: 10px;" onclick="saveSystemSettings()">
+          SALVA IMPOSTAZIONI
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SELETTORE PROFILO UTENTE (SEZIONE 1) -->
+  <div id="modalProfile" class="modal-overlay">
+    <div class="modal-container" style="width: 520px; max-width: 95vw;">
+      <div class="modal-header">
+        <h3>👤 SELEZIONE IDENTITÀ OPERATIVA</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalProfile')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 13px; color: var(--text-dim); margin-bottom: 14px;">
+          Seleziona l'utente attivo per isolare chat, appunti e materie di studio:
+        </p>
+
+        <div id="profilesListContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: RISOLVI VERIFICA / TEST (SEZIONE MODULI AVANZATI) -->
+  <div id="modalTestSolver" class="modal-overlay">
+    <div class="modal-container" style="width: 720px; max-width: 95vw;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">📝</span>
+          <h3 style="margin:0;">RISOLUTORE AUTOMATICO VERIFICHE &amp; TEST</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalTestSolver')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px; color:var(--text-dim); margin-bottom:12px;">
+          Carica la foto o il PDF di una verifica, compito in classe o test di teoria/laboratorio. J.A.R.V.I.S. analizzerà ogni quesito e fornirà lo svolgimento guidato passo dopo passo con calcoli e commenti.
+        </p>
+        <div style="border:2px dashed var(--border-cyan); border-radius:10px; padding:20px; text-align:center; background:rgba(0,240,255,0.03); margin-bottom:14px;">
+          <input type="file" id="testSolverFileInput" accept="image/*,.pdf" style="display:none;" onchange="handleTestSolverUpload(event)">
+          <button class="action-btn" style="background:var(--cyan-bright); color:#000; font-weight:700; margin:0 auto;" onclick="document.getElementById('testSolverFileInput').click()">
+            📷 SELEZIONA FOTO O PDF DEL TEST
+          </button>
+          <div id="testSolverFileName" style="margin-top:10px; font-size:12px; color:#fff;"></div>
+        </div>
+        <div id="testSolverLoading" style="display:none; text-align:center; color:var(--cyan-bright); padding:10px; font-size:13px;">
+          ⏳ J.A.R.V.I.S. sta analizzando il test e preparando le soluzioni complete...
+        </div>
+        <div id="testSolverResultBox" style="display:none; max-height:360px; overflow-y:auto; background:rgba(0,0,0,0.5); padding:14px; border-radius:8px; border:1px solid var(--border-cyan); font-size:13px; line-height:1.6;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: GESTIONE DINAMICA CANALI DIDATTICI -->
+  <div id="modalChannelManage" class="modal-overlay">
+    <div class="modal-container" style="width: 580px; max-width: 95vw;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">➕</span>
+          <h3 style="margin:0;">AGGIUNGI CANALE DIDATTICO DI STUDIO</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalChannelManage')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nome Materia / Canale</label>
+          <input type="text" id="newChannelName" class="form-control" placeholder="Es. Intelligenza Artificiale, Diritto, Chimica...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Icona / Emoji</label>
+          <input type="text" id="newChannelIcon" class="form-control" value="📚" style="width: 80px;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sottotitolo / Mini Argomento</label>
+          <input type="text" id="newChannelSubtitle" class="form-control" placeholder="Es. Algoritmi, reti neurali e progetti pratici">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
+          <button class="action-btn" onclick="closeModal('modalChannelManage')">Annulla</button>
+          <button class="action-btn" style="background:var(--cyan-bright); color:#000; font-weight:700;" onclick="submitAddNewChannel()">Salva Canale</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ARCHIVIO CANALI RIMOSSI (RIPRISTINABILI CON CHAT) -->
+  <div id="modalArchivedChannels" class="modal-overlay">
+    <div class="modal-container" style="width: 580px; max-width: 95vw;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">📂</span>
+          <h3 style="margin:0;">ARCHIVIO CANALI &amp; MATERIE RIMOSSE</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalArchivedChannels')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:12px; color:var(--text-dim); margin-bottom:12px;">
+          Le materie eliminate non vengono mai cancellate definitivamente. Puoi ripristinarle in qualsiasi momento conservando tutti i messaggi e gli appunti.
+        </p>
+        <div id="archivedChannelsList" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SCORCIATOIE DA TASTIERA -->
+  <div id="modalShortcuts" class="modal-overlay">
+    <div class="modal-container" style="width: 560px; max-width: 95vw;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">⌨️</span>
+          <h3 style="margin:0;">SCORCIATOIE DA TASTIERA J.A.R.V.I.S.</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalShortcuts')">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size:13px;">
+        <table style="width:100%; border-collapse:collapse;">
+          <tbody>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">Ctrl + Spazio</td><td style="padding:8px 0;">Attiva / Disattiva Microfono Vocale</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">Invio</td><td style="padding:8px 0;">Invia messaggio in chat</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">Shift + Invio</td><td style="padding:8px 0;">A capo nella casella di testo</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">F9</td><td style="padding:8px 0;">Compila codice C/C++ in Dev-C++</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">F10</td><td style="padding:8px 0;">Esegui programma compilato</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">F11</td><td style="padding:8px 0;">Compila ed Esegui (F9 + F10)</td></tr>
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.08);"><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">Ctrl + S</td><td style="padding:8px 0;">Salva file sorgente C++</td></tr>
+            <tr><td style="padding:8px 0; color:var(--cyan-bright); font-weight:700;">Ctrl + N</td><td style="padding:8px 0;">Nuovo file sorgente C++</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: APP IPHONE 16 / IPAD 9 / SAMSUNG Z FLIP PWA -->
+  <div id="modalMobileInstall" class="modal-overlay">
+    <div class="modal-container" style="width: 620px; max-width: 95vw;">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:22px;">📱</span>
+          <h3 style="margin:0;">APP J.A.R.V.I.S. SU IPHONE 16, IPAD 9 &amp; DISPOSITIVI MOBILI</h3>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('modalMobileInstall')">&times;</button>
+      </div>
+      <div class="modal-body" style="font-size:13px; line-height:1.6;">
+        <div style="background:rgba(0,240,255,0.06); border:1px solid var(--border-cyan); border-radius:8px; padding:12px; margin-bottom:14px;">
+          <strong>Applicazione Web Progressiva (PWA) 100% Gratuita:</strong> J.A.R.V.I.S. è configurato con architettura <em>Offline-First</em>. Funziona sia in orizzontale che in verticale sui display Apple (iPhone 16, iPad 9) e supporta la Flex Mode di Samsung Galaxy Z Flip.
+        </div>
+        <h4 style="color:var(--cyan-bright); margin-bottom:6px;">📲 Come installarla su iPhone 16 &amp; iPad 9:</h4>
+        <ol style="margin-left:20px; margin-bottom:14px;">
+          <li>Apri il link di J.A.R.V.I.S. da <strong>Safari</strong> sul tuo iPhone o iPad.</li>
+          <li>Tocca il pulsante di condivisione in basso o in alto (l'icona del quadrato con la freccia verso l'alto 📤).</li>
+          <li>Scorri e tocca <strong>"Aggiungi alla schermata Home"</strong>.</li>
+          <li>L'icona di J.A.R.V.I.S. comparirà sulla schermata principale come una vera e propria app nativa, con accesso completo al microfono, schermo intero e cache offline!</li>
+        </ol>
+        <h4 style="color:var(--cyan-bright); margin-bottom:6px;">🔄 Sincronizzazione Dati &amp; Offline in Classe:</h4>
+        <p style="color:var(--text-dim); margin:0;">
+          Tutti i dati, le chat e i voti vengono memorizzati permanentemente nella cache locale del dispositivo. Anche se in aula non c'è connessione internet, potrai sempre aprire J.A.R.V.I.S. e consultare mappe, appunti e cronologia senza blocchi.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONDIVISIONE QR CODE -->
+  <div id="modalQrShare" class="modal-overlay">
+    <div class="modal-container" style="width: 440px; max-width: 95vw; text-align:center;">
+      <div class="modal-header">
+        <h3 style="margin:0;">📱 CONDIVISIONE PROGETTO VIA QR CODE</h3>
+        <button class="modal-close-btn" onclick="closeModal('modalQrShare')">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <p style="font-size:12px; color:var(--text-dim); margin-bottom:14px;">
+          Inquadra questo QR Code con la fotocamera del tuo iPhone 16 o iPad 9 per aprire istantaneamente il codice C++ o il riassunto di studio sul dispositivo mobile.
+        </p>
+        <div id="qrCodeContainer" style="display:flex; justify-content:center; margin:14px 0;"></div>
+        <div style="font-size:11px; color:#94a3b8; word-break:break-all;" id="qrCodeUrlText"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+  <!-- STARK SECURITY LOCK SCREEN (PIN A 6 CIFRE) -->
+  <div id="starkPinLockOverlay" class="stark-pin-overlay">
+    <div class="stark-pin-card">
+      <div class="stark-pin-reactor"></div>
+      <h2 class="stark-pin-title">STARK INDUSTRIES</h2>
+      <div class="stark-pin-subtitle">J.A.R.V.I.S. PROTOCOL • ACCESSO RISERVATO</div>
+
+      <div class="stark-pin-user-toggle">
+        <button type="button" class="pin-user-tab active" id="pinTabDamiano" onclick="selectPinLoginUser('damiano_iti')">
+          👤 Signore (Damiano)
+        </button>
+        <button type="button" class="pin-user-tab" id="pinTabCristian" onclick="selectPinLoginUser('cristian')">
+          👤 Cristian
+        </button>
+      </div>
+
+      <div class="stark-pin-dots">
+        <span class="pin-dot" id="pindot_0"></span>
+        <span class="pin-dot" id="pindot_1"></span>
+        <span class="pin-dot" id="pindot_2"></span>
+        <span class="pin-dot" id="pindot_3"></span>
+        <span class="pin-dot" id="pindot_4"></span>
+        <span class="pin-dot" id="pindot_5"></span>
+      </div>
+
+      <div id="pinErrorMsg" class="pin-error-msg"></div>
+
+      <div class="stark-pin-keypad">
+        <button type="button" class="pin-key" onclick="pressPinDigit('1')">1</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('2')">2</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('3')">3</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('4')">4</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('5')">5</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('6')">6</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('7')">7</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('8')">8</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('9')">9</button>
+        <button type="button" class="pin-key pin-key-action" onclick="clearPinInput()">✕</button>
+        <button type="button" class="pin-key" onclick="pressPinDigit('0')">0</button>
+        <button type="button" class="pin-key pin-key-action" onclick="backspacePinDigit()">⌫</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Engine Modules -->
+<script src="self_healing.js"></script>
+<script src="school_engine.js"></script>
+<script src="code_sandbox.js"></script>
+<script src="app.js?v=20261025-v4-stark-pin"></script>
+
+<!-- Offline-First Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+</script>
+
+</body>
+</html>
