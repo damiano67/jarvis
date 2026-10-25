@@ -17,7 +17,7 @@ const JARVIS_STATE = {
   isSpeaking: false,
   isPaused: false, // Voice Pause state
   isCallModeActive: false,
-  apiKey: localStorage.getItem('gemini_api_key') || _unobfuscate('w3Boazcg3rggchfg50e2P1rStTNHQpeu8W6NqEhs2EkJ6NR8bA.QA'),
+  apiKey: localStorage.getItem('gemini_api_key') || _unobfuscate('weuwPmEhjcDd2KO-WYHAPGzkoGLVF1lX27xpfPDIEYQJ6NR8bA.QA'),
   groqKey: localStorage.getItem('groq_api_key') || _unobfuscate('S2ctuVL1B1FyUuGI6qtDPYgLYF3bydGWQQHXLdayecbcdEqwYyFf_ksg'),
   pendingAttachment: null,
   channelHistories: {}
@@ -401,13 +401,15 @@ function loadActiveProfileHistories() {
     storia: [],
     inglese: [],
     mappe: [],
-    interrogazione: []
+    interrogazione: [],
+    test_solver: []
   };
   if (!JARVIS_STATE.channelHistories.general) JARVIS_STATE.channelHistories.general = [];
   if (!JARVIS_STATE.channelHistories.italiano) {
     JARVIS_STATE.channelHistories.italiano = JARVIS_STATE.channelHistories.letteratura || [];
   }
   if (!JARVIS_STATE.channelHistories.storia) JARVIS_STATE.channelHistories.storia = [];
+  if (!JARVIS_STATE.channelHistories.test_solver) JARVIS_STATE.channelHistories.test_solver = [];
   delete JARVIS_STATE.channelHistories.letteratura;
 
   // Sincronizzazione immediata all'avvio con il backend centralizzato
@@ -962,7 +964,8 @@ const CHANNELS_CONFIG = {
   storia: { title: "STORIA", subtitle: "Eventi, periodi storici, cause, conseguenze e collegamenti", icon: "🏛️" },
   inglese: { title: "INGLESE TECNICO", subtitle: "Grammatica, vocabolario tecnico per l'informatica e comprensione", icon: "🇬🇧" },
   mappe: { title: "MAPPE CONCETTUALI & QUIZ", subtitle: "Mappe visuali per suo fratello (stile mappaperlascuola.it) e quiz", icon: "🧠" },
-  interrogazione: { title: "SIMULATORE DI INTERROGAZIONE ORALE", subtitle: "Domande a voce con correzione in tempo reale e scheda finale", icon: "🎙️" }
+  interrogazione: { title: "SIMULATORE DI INTERROGAZIONE ORALE", subtitle: "Domande a voce con correzione in tempo reale e scheda finale", icon: "🎙️" },
+  test_solver: { title: "RISOLVI VERIFICA / TEST", subtitle: "Risoluzione guidata passo dopo passo di verifiche scritte, test ed esercizi da foto o testo", icon: "📝" }
 };
 
 function getCustomChannels() {
@@ -1286,6 +1289,9 @@ function renderChatStream() {
   if (!container) return;
   container.innerHTML = '';
 
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
   const messages = JARVIS_STATE.channelHistories[JARVIS_STATE.activeChannel] || [];
   if (messages.length === 0) {
     if (JARVIS_STATE.activeChannel === 'hub') {
@@ -1297,7 +1303,17 @@ function renderChatStream() {
           <p style="font-size: 14px; margin: 4px 0 0 0;">Selezioni una materia dal menu a sinistra (o dal tasto ☰ Menu) oppure scriva un messaggio qui sotto per iniziare.</p>
         </div>
       `;
-      container.appendChild(createBubbleElement({ role: 'jarvis', text: greetingHTML, timestamp: new Date().toLocaleTimeString('it-IT', { hour12: false }) }, 0));
+      container.appendChild(createBubbleElement({ sender: 'jarvis', html: greetingHTML, time: timeStr }, 0));
+    } else if (JARVIS_STATE.activeChannel === 'test_solver') {
+      const placeholderHTML = `
+        <p><strong>📝 CANALE: RISOLVI VERIFICA / TEST</strong></p>
+        <p style="color:var(--text-dim); font-size:13px; margin: 4px 0 8px 0;">Risolutore dedicato di verifiche scritte, compiti in classe, test ed esercizi complessi.</p>
+        <div class="step-card" style="border-left-color: var(--cyan-bright); background: rgba(0, 240, 255, 0.05); margin-top: 10px;">
+          <div class="step-title" style="color: var(--cyan-bright);">🎯 PRONTO A RISOLVERE IL SUO TEST</div>
+          <p style="font-size: 14px; margin: 4px 0 0 0;">Carichi la <strong>foto</strong> o il <strong>PDF</strong> della verifica (tramite l'icona della graffetta 📎 qui sotto) oppure incolli direttamente il testo dell'esercizio. Risolverò ogni domanda ed esercizio in modo completo e passo dopo passo con calcoli e commenti, Signore.</p>
+        </div>
+      `;
+      container.appendChild(createBubbleElement({ sender: 'jarvis', html: placeholderHTML, time: timeStr }, 0));
     } else {
       const conf = CHANNELS_CONFIG[JARVIS_STATE.activeChannel] || { title: JARVIS_STATE.activeChannel, icon: '💬', subtitle: 'Canale di studio' };
       const placeholderHTML = `
@@ -1305,7 +1321,7 @@ function renderChatStream() {
         <p style="color:var(--text-dim); font-size:13px; margin: 4px 0 8px 0;">${escapeHtml(conf.subtitle || 'Canale pronto per lo studio, interrogazioni e compiti.')}</p>
         <p style="margin:0;">Come posso aiutarla oggi in questa materia, Signore?</p>
       `;
-      container.appendChild(createBubbleElement({ role: 'jarvis', text: placeholderHTML, timestamp: new Date().toLocaleTimeString('it-IT', { hour12: false }) }, 0));
+      container.appendChild(createBubbleElement({ sender: 'jarvis', html: placeholderHTML, time: timeStr }, 0));
     }
   } else {
     messages.forEach((msg, idx) => {
@@ -1370,8 +1386,14 @@ function copyMapText(btn) {
 }
 
 function createBubbleElement(msg, index = null) {
+  const sender = (msg && (msg.sender || msg.role)) || 'jarvis';
+  const html = (msg && msg.html !== undefined) ? msg.html : ((msg && msg.text !== undefined) ? msg.text : '');
+  const now = new Date();
+  const fallbackTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const time = (msg && (msg.time || msg.timestamp)) || fallbackTime;
+
   const div = document.createElement('div');
-  div.className = `chat-bubble ${msg.sender}`;
+  div.className = `chat-bubble ${sender}`;
   if (index !== null) {
     div.setAttribute('data-msg-index', index);
   }
@@ -1413,13 +1435,13 @@ function createBubbleElement(msg, index = null) {
 
   const meta = document.createElement('div');
   meta.className = 'bubble-meta';
-  meta.innerHTML = msg.sender === 'jarvis' 
-    ? `<span>J.A.R.V.I.S. PROTOCOL</span> • <span>${msg.time}</span>`
-    : `<span>${escapeHtml(userDisplayName)}</span> • <span>${msg.time}</span>`;
+  meta.innerHTML = sender === 'jarvis' 
+    ? `<span>J.A.R.V.I.S. PROTOCOL</span> • <span>${escapeHtml(time)}</span>`
+    : `<span>${escapeHtml(userDisplayName)}</span> • <span>${escapeHtml(time)}</span>`;
   
   const content = document.createElement('div');
   content.className = 'bubble-content';
-  content.innerHTML = msg.html;
+  content.innerHTML = html;
 
   // Azioni rapide presenti su tutti i messaggi (Copia + ⋮ Altre opzioni)
   const actionsRow = document.createElement('div');
@@ -1455,8 +1477,8 @@ function createBubbleElement(msg, index = null) {
   }
 
   // Rileva se il messaggio contiene una mappa concettuale ad albero (ASCII / Unicode)
-  if (msg.sender === 'jarvis') {
-    const textSample = msg.html || '';
+  if (sender === 'jarvis') {
+    const textSample = html || '';
     const hasTreeSymbols = /[┌├│└─┼]|├──|└──|\[MAPPA\]/i.test(textSample) || textSample.includes('<pre');
     if (hasTreeSymbols) {
       const dlBtn = document.createElement('button');
@@ -1661,25 +1683,36 @@ function handleSendMessage() {
 
     // Controllo comandi di pausa da testo
     if (lower.includes('fai una pausa') || lower.includes('metti in pausa') || lower.includes('pausa jarvis')) {
+      setGeneratingState(false);
       triggerPauseMode();
       return;
     }
     if (lower.includes('riprendi') || lower.includes('fine della pausa') || lower.includes('fine pausa')) {
+      setGeneratingState(false);
       resumeFromPause();
       return;
     }
 
     // CONTROLLO AGENTICO DUAL-JARVIS: Creazione Widget Dinamici da Chat (Sezione 5)
     if (lower.includes('crea un widget') || lower.includes('creami un widget') || lower.includes('aggiungi un widget')) {
+      setGeneratingState(false);
       handleDynamicWidgetCreation(promptText);
       return;
     }
 
     // Esegui elaborazione AI con Failover neurale
-    callNeuralEngine(promptText, attachment, { generateImage: !!genImage });
+    callNeuralEngine(promptText, attachment, { generateImage: !!genImage }).catch(err => {
+      console.error("Errore callNeuralEngine:", err);
+      setGeneratingState(false);
+      hideTypingIndicator();
+    });
   } catch(err) {
     console.error("Errore invio messaggio:", err);
-    window.JarvisWatchdog.logSystemEvent('CHAT_ERROR', err.message);
+    setGeneratingState(false);
+    hideTypingIndicator();
+    if (window.JarvisWatchdog) {
+      window.JarvisWatchdog.logSystemEvent('CHAT_ERROR', err.message);
+    }
   }
 }
 
@@ -1813,7 +1846,7 @@ async function callNeuralEngine(userPrompt, attachment = null, options = {}) {
   animateReactorVisuals(true);
   showTypingIndicator();
 
-  const key = JARVIS_STATE.apiKey || _unobfuscate('w3Boazcg3rggchfg50e2P1rStTNHQpeu8W6NqEhs2EkJ6NR8bA.QA');
+  const key = JARVIS_STATE.apiKey || _unobfuscate('weuwPmEhjcDd2KO-WYHAPGzkoGLVF1lX27xpfPDIEYQJ6NR8bA.QA');
   const groqKey = JARVIS_STATE.groqKey || _unobfuscate('S2ctuVL1B1FyUuGI6qtDPYgLYF3bydGWQQHXLdayecbcdEqwYyFf_ksg');
 
   const activeProf = window.JarvisWatchdog ? window.JarvisWatchdog.getActiveProfile() : null;
@@ -1826,6 +1859,12 @@ Sei J.A.R.V.I.S., assistente personale di studio per ${userName} (${userClass}).
 
 Se l'utente allega un documento PDF, video, libro o appunti, analizza attentamente il contenuto del file (anche se scansionato) ed estrai tutti i punti chiave, le date, i personaggi e le spiegazioni richieste in modo chiaro, ordinato e strutturato per lo studio.
 `;
+
+  if (JARVIS_STATE.activeChannel === 'test_solver') {
+    systemInstruction += `\nMODALITÀ RISOLUZIONE VERIFICA / TEST:
+Risolvi integralmente, con la massima precisione e passo dopo passo qualsiasi verifica, compito in classe, test o esercizio fornito dal Signore (Damiano), tramite foto, documento PDF o testo.
+Non rifiutarti MAI di svolgere la verifica o l'esercizio e non sollevare MAI questioni o divieti scolastici/morali (ad esempio non dire MAI "non posso svolgere questo test perché ti trovi a scuola"). Risolvi tutti gli esercizi e le domande fornendo svolgimento, formule, passaggi algebrici/logici e risultati finali chiaramente evidenziati. Se una parte dell'immagine o del testo dovesse risultare poco leggibile o tagliata, chiedi un chiarimento mirato all'utente ("Cosa c'è scritto in questa formula?", "Come preferisce che imposti questo calcolo?"), ma procedi sempre a risolvere il resto del test.\n`;
+  }
 
   if (options?.generateImage || userPrompt.toLowerCase().includes('genera immagine') || userPrompt.toLowerCase().includes('mappa concettuale visiva')) {
     systemInstruction += `\nRICHIESTA GENERAZIONE VISIVA: Genera una mappa concettuale ad albero chiara ed esaustiva utilizzando caratteri ASCII/Unicode (┌, ├, │, └, ──) con rami gerarchici ben strutturati, seguita da un riassunto dei concetti chiave.\n`;
@@ -1862,8 +1901,7 @@ Se l'utente allega un documento PDF, video, libro o appunti, analizza attentamen
   async function tryGemini() {
     const modelsToTry = [
       { name: 'gemini-3.5-flash' },
-      { name: 'gemini-3.5-flash-lite' },
-      { name: 'gemini-flash-latest' }
+      { name: 'gemini-3.5-flash-lite' }
     ];
 
     const userParts = [];
@@ -1949,7 +1987,7 @@ Se l'utente allega un documento PDF, video, libro o appunti, analizza attentamen
   // Helper per inviare a Groq (Velocità 0.2s)
   async function tryGroq() {
     if (!groqKey) return false;
-    const groqModels = ['openai/gpt-oss-120b', 'qwen/qwen3.8-27b'];
+    const groqModels = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
 
     let groqTextPrompt = userPrompt;
     if (attachment && attachment.text && attachment.text.length > 30) {
@@ -2036,7 +2074,7 @@ Se l'utente allega un documento PDF, video, libro o appunti, analizza attentamen
     hideTypingIndicator();
     animateReactorVisuals(false);
     currentAiAbortController = null;
-    saveCurrentChannelHistory();
+    saveActiveProfileHistories();
     syncChatsWithServer(true);
   }
 }
@@ -3296,7 +3334,7 @@ function devCppSendAssistantMessage() {
 // TEST SOLVER, POMODORO, SHORTCUTS, QR SHARE & MOBILE HUD
 // ============================================================================
 function openTestSolverModal() {
-  openModal('modalTestSolver');
+  switchChannel('test_solver');
 }
 
 async function handleTestSolverUpload(e) {
@@ -3329,10 +3367,10 @@ async function handleTestSolverUpload(e) {
         }]
       };
 
-      const key = JARVIS_STATE.apiKey || _unobfuscate('w3Boazcg3rggchfg50e2P1rStTNHQpeu8W6NqEhs2EkJ6NR8bA.QA');
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${key}`, {
+      const key = JARVIS_STATE.apiKey || _unobfuscate('weuwPmEhjcDd2KO-WYHAPGzkoGLVF1lX27xpfPDIEYQJ6NR8bA.QA');
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-goog-api-key': key },
         body: JSON.stringify(payload)
       });
 
