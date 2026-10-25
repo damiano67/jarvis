@@ -1,0 +1,21 @@
+{
+  "name": "J.A.R.V.I.S. Protocol - Studio & Stark HUD",
+  "short_name": "J.A.R.V.I.S.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#00f0ff",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "headerMiniReactor.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "headerMiniReactor.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
